@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Calendar 2026</title>
+    <style>
+        :root { --orange: #ff5722; --sun: #f44336; }
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
+        .calendar { max-width: 500px; margin: auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header { background: var(--orange); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+        .cell { min-height: 80px; border: 0.5px solid #eee; padding: 5px; text-align: center; cursor: pointer; }
+        .today { background: #fff3e0; border: 2px solid var(--orange); }
+        .tithi { font-size: 0.7em; color: #d32f2f; display: block; }
+        .fest { font-size: 0.6em; color: green; font-weight: bold; }
+        @keyframes pulse { 0% { background: #fff; } 100% { background: #e3f2fd; } }
+        .has-task { animation: pulse 2s infinite alternate; }
+    </style>
+</head>
+<body>
+    <div class="calendar">
+        <div class="header">
+            <button onclick="changeMonth(-1)">Prev</button>
+            <h2 id="mthTitle"></h2>
+            <button onclick="changeMonth(1)">Next</button>
+        </div>
+        <div class="grid" id="calGrid"></div>
+    </div>
+
+    <script>
+        let curr = new Date();
+        async function load() {
+            const res = await fetch(`/api/panchang?year=${curr.getFullYear()}&month=${curr.getMonth()}`);
+            const data = await res.json();
+            const grid = document.getElementById('calGrid');
+            document.getElementById('mthTitle').innerText = curr.toLocaleString('hi-IN', { month: 'long', year: 'numeric' });
+            
+            grid.innerHTML = '';
+            const firstDay = new Date(curr.getFullYear(), curr.getMonth(), 1).getDay();
+            for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
+
+            data.forEach(d => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if(new Date().toDateString() === new Date(curr.getFullYear(), curr.getMonth(), d.day).toDateString()) cell.classList.add('today');
+                cell.innerHTML = `<b>${d.day}</b><span class="tithi">${d.tithi}</span><div class="fest">${d.festivals.join(', ')}</div>`;
+                cell.onclick = () => { if(confirm('Add Task?')) cell.classList.add('has-task'); };
+                grid.appendChild(cell);
+            });
+        }
+        function changeMonth(v) { curr.setMonth(curr.getMonth() + v); load(); }
+        window.onload = load;
+    </script>
+</body>
+</html>
