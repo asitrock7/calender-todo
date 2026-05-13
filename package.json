@@ -2,8 +2,14 @@
   "name": "hindi-calendar",
   "version": "1.0.0",
   "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
   "dependencies": {
     "express": "^4.18.2",
-    "@ishubhamx/panchangam-js": "^1.1.0"
+    "@ishubhamx/panchangam-js": "latest"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
